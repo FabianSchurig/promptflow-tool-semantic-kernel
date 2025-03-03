@@ -37,7 +37,7 @@ RUN --mount=type=secret,id=openai_api_key \
     --mount=type=secret,id=openai_api_base \
     poetry install && \
     poetry run pf connection create -f connection.yaml --set api_key=$(cat /run/secrets/openai_api_key) api_base=$(cat /run/secrets/openai_api_base) && \
-    poetry run pytest --cov-report xml:coverage.xml --cov-report term --cov=promptflow_tool_semantic_kernel tests/
+    poetry run pytest --cov-report xml:coverage.xml --cov-report term --cov=promptflow_tool_semantic_kernel --cov-config=.coveragerc tests/
 
 FROM build AS publish
 
