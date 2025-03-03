@@ -40,7 +40,7 @@ FROM build AS publish
 RUN --mount=type=secret,id=pypi_api_token \
     --mount=type=secret,id=repo_password \
     if [ -z "$REPO_URL" ]; then \
-    if ! curl --silent --fail https://pypi.org/project/promptflow-starter-template/$PACKAGE_VERSION/ > /dev/null; then \
+    if ! curl --silent --fail https://pypi.org/project/promptflow-tool-semantic-kernel/$PACKAGE_VERSION/ > /dev/null; then \
         poetry publish; \
     else \
         echo "Package version $PACKAGE_VERSION already exists on PyPI. Skipping publish step."; \
