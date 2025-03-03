@@ -89,7 +89,7 @@ jobs:
       - name: Copy coverage.json from Docker image
         run: |
           CONTAINER_ID=$(docker create ghcr.io/${{ env.REPO_NAME }}/test:${{ github.sha }})
-          docker cp $CONTAINER_ID:/app/coverage.json coverage.json
+          docker cp $CONTAINER_ID:/app/coverage.xml coverage.xml
           docker rm $CONTAINER_ID
       
       - name: SonarCloud Scan
