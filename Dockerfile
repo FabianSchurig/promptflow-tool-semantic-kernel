@@ -33,7 +33,7 @@ RUN --mount=type=secret,id=pypi_api_token \
 FROM build AS test
 
 # Run tests
-RUN poetry run pytest --cov-report json:coverage.json --cov-report term --cov=promptflow_tool_semantic_kernel tests/
+RUN poetry install && poetry run pytest --cov-report json:coverage.json --cov-report term --cov=promptflow_tool_semantic_kernel tests/
 
 FROM build AS publish
 
