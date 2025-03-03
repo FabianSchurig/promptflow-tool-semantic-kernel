@@ -26,7 +26,7 @@ nodes:
     tool: promptflow_tool_semantic_kernel.tools.semantic_kernel_tool.semantic_kernel_chat
     path: semantic_kernel_chat.jinja2
   inputs:
-    connection: to_replace_with_connection_name
+    connection: open_ai_connection
     deployment_name: gpt-4o
     chat_history: ${inputs.chat_history}
     question: ${inputs.question}

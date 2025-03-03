@@ -65,3 +65,29 @@ jobs:
             pypi_api_token=${{ secrets.PYPI_API_TOKEN }}
             repo_password=${{ secrets.PYPI_PASSWORD }}
           target: publish
+      
+      - name: Build Docker image stage tests
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: |
+            ghcr.io/${{ env.REPO_NAME }}/test:latest
+            ghcr.io/${{ env.REPO_NAME }}/test:${{ github.sha }}
+          file: Dockerfile
+          build-args: |
+            REPO_URL=${{ secrets.PYPI_REPOSITORY_URL }}
+            REPO_USERNAME=${{ secrets.PYPI_USERNAME }}
+            PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}
+          secrets: |
+            pypi_api_token=${{ secrets.PYPI_API_TOKEN }}
+            repo_password=${{ secrets.PYPI_PASSWORD }}
+          target: test
+      
+      - name: Copy coverage.json from Docker image
+        run: docker cp $(docker create ghcr.io/${{ env.REPO_NAME }}/test:latest):/app/coverage.json coverage.json
+      
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -2,6 +2,9 @@
 
 A Python package that integrates [Semantic Kernel](https://github.com/microsoft/semantic-kernel) with [Azure Prompt Flow](https://github.com/microsoft/promptflow), enabling efficient LLM application development.
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
+
 ## Features
 
 - Ready-to-use custom LLM tool that leverages Semantic Kernel in Prompt Flow
@@ -86,11 +89,22 @@ python -m scripts.main
 ### Setup
 
 1. Clone the repository
-2. Install Poetry
-3. Install development dependencies:
-    ```bash
-    poetry install
-    ```
+     ```bash
+     git clone git@github.com:FabianSchurig/promptflow-tool-semantic-kernel.git
+     cd promptflow-tool-semantic-kernel
+     cp .devcontainer/devcontainer.env.example .devcontainer/devcontainer.env
+     ```
+2. Start the devcontainer with vs code
+3. Install development dependencies (should automatically run):
+     ```bash
+     poetry install
+     ```
+4. Activate the environment
+     ```bash
+     eval $(poetry env activate)
+     which python
+     uvicorn tests.system.api:app --workers 1 --port 5000
+     ```
 
 ### Testing
 
