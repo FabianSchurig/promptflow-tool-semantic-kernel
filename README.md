@@ -4,6 +4,9 @@ A Python package that integrates [Semantic Kernel](https://github.com/microsoft/
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
 
 ## Features
 
