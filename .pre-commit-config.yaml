@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/google/yapf
+    rev: v0.43.0
+    hooks:
+      - id: yapf
+        additional_dependencies: ['toml']
+      
+  - repo: local
+    hooks:
+    - id: pytest
+      name: pytest
+      entry: ./.venv/bin/pytest tests
+      language: system
+      types: [python]
+      pass_filenames: false
+      always_run: true

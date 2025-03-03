@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "promptflow-tool-semantic-kernel"
+version = "0.1.0"
+description = ""
+authors = ["Fabian Schurig <fabian.a.schurig@gmail.com>"]
+readme = "README.md"
+packages = [
+    { include = "promptflow_tool_semantic_kernel" }
+]
+include = ["**/*.yaml", "**/*.yml"]
+license = "AGPL-3.0-only"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+promptflow = "^1.17.2"
+semantic-kernel = "^1.22.0"
+keyrings-alt = "^5.0.2"
+promptflow-tracing = "^1.17.2"
+fastapi = "^0.115.10"
+uvicorn = "^0.34.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+yapf = "^0.43.0"
+pytest-asyncio = "^0.25.3"
+pytest-mock = "^3.14.0"
+promptflow-tracing = "^1.17.2"
+opentelemetry-instrumentation-fastapi = "^0.51b0"
+pre-commit = "^4.1.0"
+pytest-cov = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core", "pyyaml"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.poetry.build]
+script = "build.py"
+
+[tool.poetry.plugins."package_tools"]
+semantic-kernel-tool = "promptflow_tool_semantic_kernel.tools.utils:list_package_tools"

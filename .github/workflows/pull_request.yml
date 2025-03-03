@@ -1,0 +1,63 @@
+name: Pull Request Workflow
+
+on:
+  pull_request:
+    branches-ignore:
+      - main
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set repository name to lowercase
+        run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Extract package version
+        id: extract_version
+        run: echo "PACKAGE_VERSION=$(grep -oP '(?<=version = \")[^\"]*' pyproject.toml)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: |
+            ghcr.io/${{ env.REPO_NAME }}/build:latest
+            ghcr.io/${{ env.REPO_NAME }}/build:${{ github.sha }}
+          file: Dockerfile
+          build-args: |
+            REPO_URL=${{ secrets.PYPI_REPOSITORY_URL }}
+            REPO_USERNAME=${{ secrets.PYPI_USERNAME }}
+            PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}
+          secrets: |
+            pypi_api_token=${{ secrets.PYPI_API_TOKEN }}
+            repo_password=${{ secrets.PYPI_PASSWORD }}
+          target: build
+
+      - name: Run tests with docker build
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          tags: |
+            ghcr.io/${{ env.REPO_NAME }}/test:latest
+            ghcr.io/${{ env.REPO_NAME }}/test:${{ github.sha }}
+          file: Dockerfile
+          build-args: |
+            REPO_URL=${{ secrets.PYPI_REPOSITORY_URL }}
+            REPO_USERNAME=${{ secrets.PYPI_USERNAME }}
+            PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}
+          secrets: |
+            pypi_api_token=${{ secrets.PYPI_API_TOKEN }}
+            repo_password=${{ secrets.PYPI_PASSWORD }}
+          target: test
