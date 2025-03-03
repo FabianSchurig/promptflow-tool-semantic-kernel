@@ -87,7 +87,10 @@ jobs:
           target: test
       
       - name: Copy coverage.json from Docker image
-        run: docker cp $(docker create ghcr.io/${{ env.REPO_NAME }}/test:latest):/app/coverage.json coverage.json
+        run: |
+          CONTAINER_ID=$(docker create ghcr.io/${{ env.REPO_NAME }}/test:${{ github.sha }})
+          docker cp $CONTAINER_ID:/app/coverage.json coverage.json
+          docker rm $CONTAINER_ID
       
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
