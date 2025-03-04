@@ -16,6 +16,7 @@ from promptflow_tool_semantic_kernel.tools.logger_factory import LoggerFactory
 from promptflow_tool_semantic_kernel.tools.kernel_factory import KernelFactory
 from promptflow_tool_semantic_kernel.tools.chat_history_processor import ChatHistoryProcessor
 from promptflow_tool_semantic_kernel.tools.response_strategy import ResponseStrategy
+from promptflow_tool_semantic_kernel.tools.tracing_disabler import TracingDisabler
 
 import logging
 
@@ -64,30 +65,14 @@ async def semantic_kernel_chat(
 
         # Get response using appropriate strategy
         if streaming:
+            # Temporarily disable promptflow tracing for Semantic Kernel compatibility
+            with TracingDisabler():
+                logger.debug("Using streaming response strategy")
+                response_strategy = ResponseStrategy.get_streaming_response(
+                    chat_completion, history, execution_settings, kernel)
 
-            # TODO: Investigate why this patch is necessary, and if it can be avoided
-            # Currently it would wrap the openai.AsyncStream object with the TracedAsyncIterator,
-            # then FastAPI does not return any response
-            import promptflow.tracing._trace
-
-            original_handle_output = promptflow.tracing._trace.handle_output
-
-            def patched_handle_output(span, inputs, output, trace_type):
-                return output
-
-            promptflow.tracing._trace.handle_output = patched_handle_output
-
-            # At the beginning of your function
-
-            logger.debug("Using streaming response strategy")
-            response_strategy = ResponseStrategy.get_streaming_response(
-                chat_completion, history, execution_settings, kernel)
-
-            async for chunk in response_strategy:
-                logger.debug(f"Streaming chunk: {chunk}")
-                yield chunk
-
-            promptflow.tracing._trace.handle_output = original_handle_output
+                async for chunk in response_strategy:
+                    yield chunk
         else:
             logger.debug("Using complete response strategy")
             response = await ResponseStrategy.get_complete_response(
