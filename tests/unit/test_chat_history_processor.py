@@ -140,3 +140,76 @@ def test_build_history_exception_handling(mocker):
                 "question": "Question"
             }
         }], "Prompt")
+
+
+def test_build_history_with_string_answer():
+    # Test with answer as a string instead of a dictionary
+    chat_history = [{
+        "inputs": {
+            "question": "What is Python?"
+        },
+        "outputs": {
+            "answer": "Python is a programming language."
+        }
+    }]
+
+    result = ChatHistoryProcessor.build_history(chat_history, "Tell me more")
+
+    assert isinstance(result, ChatHistory)
+    assert len(result.messages) == 3
+    assert result.messages[0].role == "user"
+    assert result.messages[0].content == "What is Python?"
+    assert result.messages[1].role == "assistant"
+    assert result.messages[1].content == "Python is a programming language."
+    assert result.messages[2].content == "Tell me more"
+
+
+def test_build_history_with_mixed_answer_types():
+    # Test with a mixture of string and dictionary answers
+    chat_history = [{
+        "inputs": {
+            "question": "What is Python?"
+        },
+        "outputs": {
+            "answer": "Python is a programming language."
+        }
+    }, {
+        "inputs": {
+            "question": "Is it easy to learn?"
+        },
+        "outputs": {
+            "answer": {
+                "content": "Yes, Python is relatively easy to learn."
+            }
+        }
+    }]
+
+    result = ChatHistoryProcessor.build_history(chat_history, "Tell me more")
+
+    assert isinstance(result, ChatHistory)
+    assert len(result.messages) == 5
+    assert result.messages[1].role == "assistant"
+    assert result.messages[1].content == "Python is a programming language."
+    assert result.messages[3].role == "assistant"
+    assert result.messages[
+        3].content == "Yes, Python is relatively easy to learn."
+
+
+def test_build_history_with_null_answer():
+    # Test with None as an answer
+    chat_history = [{
+        "inputs": {
+            "question": "What is Python?"
+        },
+        "outputs": {
+            "answer": None
+        }
+    }]
+
+    result = ChatHistoryProcessor.build_history(chat_history, "Tell me more")
+
+    assert isinstance(result, ChatHistory)
+    assert len(result.messages) == 2
+    assert result.messages[0].role == "user"
+    assert result.messages[0].content == "What is Python?"
+    assert result.messages[1].content == "Tell me more"

@@ -12,6 +12,18 @@
         "dark": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2ElEQVR4nJXSzW3CQBAF4DUSTjk+Al1AD0ikESslpBIEheRALhEpgAYSWV8OGUublf/yLuP3PPNmdndS+gdwXZrYDmh7fGE/W+wXbaYd8IYm4rxJPnZ0boI3wZcdJxs/n+AwV7DFK7aFyfQdYIMLPvES8YJNf5yp4jMeeEYdWh38gXOR35YGHe5xabvQdsHv6PLi8qV6gycc8YH3iMfQu6Lh4ASr+F5Hh3XwVWnQYzUkVlX1nccplAb1SN6Y/sfgmlK64VS8wimldIv/0yj2QLkHizG0iWP4AVAfQ34DVQONAAAAAElFTkSuQmCC"
       },
       "default_prompt": "# system:\nYou are a helpful assistant.\n\n# user:\n{{question}}\n",
+      "groups": [
+        {
+          "name": "Plugins",
+          "description": "This group contains plugins for the Semantic Kernel.",
+          "inputs": [
+            "plugins"
+          ],
+          "ui_hints": {
+            "display_style": "table"
+          }
+        }
+      ],
       "inputs": {
         "connection": {
           "type": [
@@ -38,10 +50,21 @@
           "ui_hints": {
             "index": 2
           }
+        },
+        "plugins": {
+          "type": [
+            "list"
+          ],
+          "default": "[\n{\n  \"name\": \"lights\",\n  \"class\": \"LightsPlugin\",\n  \"module\": \"promptflow_tool_semantic_kernel.tools.lights_plugin\"\n}\n]\n",
+          "description": "The json object containing the plugins.",
+          "ui_hints": {
+            "text_box_size": "lg",
+            "index": 3
+          }
         }
       },
       "package": "promptflow-tool-semantic-kernel",
-      "package_version": "0.1.0"
+      "package_version": "0.1.1"
     }
   },
   "code": {

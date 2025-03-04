@@ -15,6 +15,13 @@ promptflow_tool_semantic_kernel.tools.semantic_kernel_tool.semantic_kernel_chat:
 
     # user:
     {{question}}
+  groups:
+    - name: Plugins
+      description: This group contains plugins for the Semantic Kernel.
+      inputs:
+        - plugins
+      ui_hints:
+        display_style: table
   inputs:
     connection:
       type:
@@ -28,3 +35,17 @@ promptflow_tool_semantic_kernel.tools.semantic_kernel_tool.semantic_kernel_chat:
       type: list
       is_chat_history: true
       default: []
+    plugins:
+      type:
+        - list
+      default: |
+        [
+        {
+          "name": "lights",
+          "class": "LightsPlugin",
+          "module": "promptflow_tool_semantic_kernel.tools.lights_plugin"
+        }
+        ]
+      description: The json object containing the plugins.
+      ui_hints:
+        text_box_size: lg

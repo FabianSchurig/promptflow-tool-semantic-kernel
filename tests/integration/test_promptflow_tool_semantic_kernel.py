@@ -57,6 +57,7 @@ async def test_integration(mock_get_streaming, mock_create_kernel):
                                   deployment_name="test-deployment",
                                   chat_history=chat_history,
                                   prompt=prompt,
+                                  plugins=[],
                                   streaming=True,
                                   topic="AI")
 

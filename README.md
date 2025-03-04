@@ -8,13 +8,18 @@ A Python package that integrates [Semantic Kernel](https://github.com/microsoft/
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=FabianSchurig_promptflow-tool-semantic-kernel&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=FabianSchurig_promptflow-tool-semantic-kernel)
 
-## Features
+## Why?
 
-- Ready-to-use custom LLM tool that leverages Semantic Kernel in Prompt Flow
-- Supports both streaming and non-streaming responses
-- Compatible with Azure OpenAI and OpenAI connections
-- Customizable prompt templates
-- Built-in chat history processing for conversational applications
+This tool bridges the powerful execution flow of Promptflow with the advanced ReAct capabilities of Semantic Kernel, offering several advantages:
+
+- Easily pre-process or post-process data from your main assistant with minimal configuration.
+- Leverage Semantic Kernel's planning and reasoning capabilities within your Prompt Flow applications **by just providing configuration.**
+- Connect to a variety of LLM providers beyond OpenAI, including **Anthropic Claude, Amazon Bedrock, Llama, and more** through Semantic Kernel's connectors.
+- Access Semantic Kernel's growing plugin ecosystem to extend functionality without writing custom code.
+- Use Promptflow's UI and batch evaluation with your semantic kernel assistant.
+
+The integration creates a best-of-both-worlds solution, combining Promptflow's orchestration capabilities with Semantic Kernel's flexibility and plugin architecture.
+
 
 ## Installation
 
@@ -26,52 +31,24 @@ pip install promptflow-tool-semantic-kernel
 
 ## Usage
 
-### In Azure Prompt Flow
+### In VSCode Promptflow
 
-Once installed, the Semantic Kernel tool will be available in your Prompt Flow tools collection:
+Once installed, the Semantic Kernel tool will be available in your Promptflow tools collection:
 
-1. Create a new flow in Azure Prompt Flow
+![New Tool in Sidebar](./docs/promptflow_tools.png)
+
+1. Create a new promptflow in VSCode
 2. Add a custom LLM tool node
 3. Select "Semantic Kernel LLM Tool" from the tool list
 4. Configure the following parameters:
     - Connection (Azure OpenAI or OpenAI)
     - Deployment name (model name for OpenAI or deployment name for Azure)
     - Chat history (optional)
-    - Customize your prompt as needed
-
-### Sample Code
-
-```python
-from promptflow.connections import CustomConnection
-from promptflow.contracts.types import PromptTemplate
-from promptflow_tool_semantic_kernel.tools.semantic_kernel_tool import semantic_kernel_chat
-
-# Create a connection
-connection = CustomConnection(
-     secrets={"api_key": "your_api_key"},
-     configs={"base_url": "https://your-endpoint.openai.azure.com/", "api_type": "azure"}
-)
-
-# Define chat history
-chat_history = [{
-     "inputs": {"question": "Hello"},
-     "outputs": {"answer": {"content": "Hi there! How can I help you?"}}
-}]
-
-# Define prompt template
-prompt = PromptTemplate("Tell me about {{topic}}")
-
-# Call the tool
-async for chunk in semantic_kernel_chat(
-     connection=connection,
-     deployment_name="gpt-4",
-     chat_history=chat_history,
-     prompt=prompt,
-     streaming=True,
-     topic="Azure Prompt Flow"
-):
-     print(chunk, end="", flush=True)
-```
+    - Plugins (optional)
+    - Customize your prompt as needed  
+      
+  
+![Semantic Kernel Chat](./docs/vscode.png)
 
 ## Running the Demo
 
@@ -86,6 +63,76 @@ export AZURE_OPENAI_DEPLOYMENT_NAME=your_deployment_name
 # Run the demo
 python -m scripts.main
 ```
+
+## Adding Custom Plugins
+
+Semantic Kernel allows you to easily extend functionality through plugins. [Learn more about creating a native plugin](https://learn.microsoft.com/en-us/semantic-kernel/get-started/quick-start-guide?pivots=programming-language-python#create-a-native-plugin).
+
+Here's how to use plugins with this tool:
+
+### Built-in Plugins
+
+The tool comes with a built-in `LightsPlugin` for demonstration:
+
+```python
+# Default plugin configuration
+plugins = [
+     {
+          "name": "lights",
+          "class": "LightsPlugin",
+          "module": "promptflow_tool_semantic_kernel.tools.lights_plugin"
+     }
+]
+```
+
+## Configuring with flow.dag.yaml
+
+You can also configure the tool using a `flow.dag.yaml` file. This file defines the flow and its components, including the `semantic_kernel_chat` tool and its plugins. Here is an example configuration:
+
+```yaml
+# filepath: /workspaces/promptflow-tool-semantic-kernel/tests/system/flow.dag.yaml
+$schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+environment:
+     python_requirements_txt: requirements.txt
+environment_variables:
+     PROMPTFLOW_SERVING_ENGINE: fastapi
+     PF_DISABLE_TRACING: "false"
+inputs:
+     chat_history:
+          type: list
+          is_chat_history: true
+          default: []
+     question:
+          type: string
+          is_chat_input: true
+outputs:
+     answer:
+          type: string
+          reference: ${semantic_kernel_chat.output}
+          is_chat_output: true
+nodes:
+- name: semantic_kernel_chat
+     type: custom_llm
+     source:
+          type: package_with_prompt
+          tool: promptflow_tool_semantic_kernel.tools.semantic_kernel_tool.semantic_kernel_chat
+          path: semantic_kernel_chat.jinja2
+     inputs:
+          connection: open_ai_connection
+          deployment_name: gpt-4
+          chat_history: ${inputs.chat_history}
+          question: ${inputs.question}
+          plugins: |
+               [
+               {
+                    "name": "lights",
+                    "class": "LightsPlugin",
+                    "module": "promptflow_tool_semantic_kernel.tools.lights_plugin"
+               }
+               ]
+```
+
+This configuration allows you to leverage the power of plugins within your flow. You can define multiple plugins to extend the functionality of the `semantic_kernel_chat` tool. Each plugin is specified with its name, class, and module, making it easy to integrate and customize as needed.
 
 ## Development
 

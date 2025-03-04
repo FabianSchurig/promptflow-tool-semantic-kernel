@@ -61,6 +61,7 @@ async def test_semantic_kernel_chat_non_streaming(mock_get_response,
         deployment_name="test-deployment",
         chat_history=mock_chat_history,
         prompt=mock_prompt,
+        plugins=[],
         streaming=False,
         topic="AI")
 
@@ -100,6 +101,7 @@ async def test_semantic_kernel_chat_streaming(mock_get_streaming,
         deployment_name="test-deployment",
         chat_history=mock_chat_history,
         prompt=mock_prompt,
+        plugins=[],
         streaming=True,
         topic="AI")
 
@@ -128,6 +130,7 @@ async def test_semantic_kernel_chat_exception_handling(mock_create_kernel,
         deployment_name="test-deployment",
         chat_history=mock_chat_history,
         prompt=mock_prompt,
+        plugins=[],
         topic="AI")
 
     response = [r async for r in result]
@@ -150,7 +153,9 @@ async def test_chat_history_processing(mock_build_history, mock_create_kernel,
     mock_kernel = MagicMock()
     mock_chat_completion = MagicMock()
     mock_create_kernel.return_value = (mock_kernel, mock_chat_completion)
-    mock_build_history.return_value = "processed_history"
+    mock_chat_history_obj = MagicMock()
+    mock_chat_history_obj.messages = []
+    mock_build_history.return_value = mock_chat_history_obj
 
     # Patch the response strategy to avoid full execution
     async def mock_streaming_gen():
@@ -165,6 +170,7 @@ async def test_chat_history_processing(mock_build_history, mock_create_kernel,
             deployment_name="test-deployment",
             chat_history=mock_chat_history,
             prompt=mock_prompt,
+            plugins=[],
             streaming=True,
             topic="AI")
 

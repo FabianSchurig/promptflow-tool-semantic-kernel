@@ -16,8 +16,14 @@ class ChatHistoryProcessor:
             for entry in chat_history:
                 if isinstance(entry, dict):
                     user_message = entry.get("inputs", {}).get("question", "")
-                    assistant_message = entry.get("outputs", {}).get(
-                        "answer", {}).get("content", "")
+                    answer = entry.get("outputs", {}).get("answer", {})
+
+                    # Handle the case where "answer" is a string
+                    assistant_message = ""
+                    if isinstance(answer, dict):
+                        assistant_message = answer.get("content", "")
+                    elif isinstance(answer, str):
+                        assistant_message = answer
 
                     if user_message:
                         history.add_user_message(user_message)

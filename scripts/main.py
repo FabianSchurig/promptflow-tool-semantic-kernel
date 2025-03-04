@@ -43,6 +43,7 @@ if __name__ == "__main__":
                                            "gpt-35-turbo"),
             chat_history=sample_history,
             prompt=sample_prompt,
+            plugins=[],
             streaming=True):
             if chunk is not None:
                 print(chunk, end="", flush=True)

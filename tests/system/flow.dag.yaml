@@ -4,7 +4,6 @@ environment:
 environment_variables:
   PROMPTFLOW_SERVING_ENGINE: fastapi
   PF_DISABLE_TRACING: "false"
-  # PF_SKIP_SERIALIZATION_CHECK: "true"
 inputs:
   chat_history:
     type: list
@@ -30,3 +29,7 @@ nodes:
     deployment_name: gpt-4o
     chat_history: ${inputs.chat_history}
     question: ${inputs.question}
+    plugins:
+    - name: lights
+      class: LightsPlugin
+      module: promptflow_tool_semantic_kernel.tools.lights_plugin

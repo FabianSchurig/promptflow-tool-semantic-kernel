@@ -39,5 +39,5 @@ def call_score_endpoint(question, chat_history=None):
 
 if __name__ == "__main__":
     # Example usage
-    result = call_score_endpoint("Compute 1 + 1.")
+    result = call_score_endpoint("Turn on all lights.")
     print(result)
