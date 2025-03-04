@@ -15,7 +15,7 @@ class TestKernelFactory:
         mock_connection.secrets = {"api_key": "test-key"}
 
         with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
-             patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
             mock_kernel = MagicMock()
             mock_kernel.add_service.return_value = None
             mock_kernel_class.return_value = mock_kernel
@@ -26,11 +26,12 @@ class TestKernelFactory:
                 mock_connection, "test-deployment")
 
             assert kernel == mock_kernel
+            assert chat_completion == mock_chat
             # Rather than comparing objects directly, verify the mock was used
             mock_azure_chat.assert_called_once_with(
                 api_key="test-key",
                 deployment_name="test-deployment",
-                base_url="https://test.openai.azure.com")
+                base_url="https://test.openai.azure.com/openai/")
             mock_kernel.add_service.assert_called_once_with(mock_chat)
 
     def test_create_kernel_with_openai_connection(self):
@@ -41,7 +42,7 @@ class TestKernelFactory:
         mock_connection.organization = "test-org"
 
         with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
-             patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
             mock_kernel = MagicMock()
             mock_kernel.add_service.return_value = None
             mock_kernel_class.return_value = mock_kernel
@@ -69,7 +70,7 @@ class TestKernelFactory:
         mock_connection.secrets = {"api_key": "custom-key"}
 
         with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
-             patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
             mock_kernel = MagicMock()
             mock_kernel_class.return_value = mock_kernel
             mock_chat = MagicMock()
@@ -91,8 +92,8 @@ class TestKernelFactory:
         mock_connection.secrets = {"api_key": "custom-key"}
 
         with patch.object(KernelFactory, '_is_azure_connection', return_value=False), \
-             patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
-             patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
             mock_kernel = MagicMock()
             mock_kernel_class.return_value = mock_kernel
             mock_chat = MagicMock()
@@ -145,8 +146,8 @@ class TestKernelFactory:
 
         expected_error = "Failed to create OpenAI settings."
         with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion',
-                  side_effect=Exception(expected_error)), \
-             patch('promptflow_tool_semantic_kernel.tools.logger_factory.LoggerFactory.create_logger') as mock_logger_factory:
+                   side_effect=Exception(expected_error)), \
+                patch('promptflow_tool_semantic_kernel.tools.logger_factory.LoggerFactory.create_logger') as mock_logger_factory:
             mock_logger = MagicMock()
             mock_logger_factory.return_value = mock_logger
 
@@ -155,3 +156,73 @@ class TestKernelFactory:
 
             mock_logger.error.assert_called_once_with(
                 f"Failed to create kernel: {expected_error}")
+
+    def test_azure_base_url_formatting(self):
+        # Test that base_url gets properly formatted with /openai/ suffix
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "AzureOpenAIConnection"
+        mock_connection.api_base = "https://test.openai.azure.com"  # No trailing /openai/
+        mock_connection.secrets = {"api_key": "test-key"}
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel'), \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
+            KernelFactory.create_kernel(mock_connection, "test-deployment")
+            mock_azure_chat.assert_called_once_with(
+                api_key="test-key",
+                deployment_name="test-deployment",
+                base_url="https://test.openai.azure.com/openai/")
+
+    def test_azure_base_url_already_has_openai_suffix(self):
+        # Test that base_url is not modified if it already has /openai/ suffix
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "AzureOpenAIConnection"
+        mock_connection.api_base = "https://test.openai.azure.com/openai/"  # Already has /openai/
+        mock_connection.secrets = {"api_key": "test-key"}
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel'), \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
+            KernelFactory.create_kernel(mock_connection, "test-deployment")
+            mock_azure_chat.assert_called_once_with(
+                api_key="test-key",
+                deployment_name="test-deployment",
+                base_url="https://test.openai.azure.com/openai/")
+
+    def test_custom_connection_azure_base_url_formatting(self):
+        # Test CustomConnection with Azure base_url formatting
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "CustomConnection"
+        mock_connection.configs = {
+            "base_url": "https://custom.azure.com"
+        }  # No trailing /openai/
+        mock_connection.secrets = {"api_key": "custom-key"}
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel'), \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.AzureChatCompletion', autospec=True) as mock_azure_chat:
+            KernelFactory.create_kernel(mock_connection, "deployment-name")
+            mock_azure_chat.assert_called_once_with(
+                api_key="custom-key",
+                deployment_name="deployment-name",
+                # Custom connection doesn't get /openai/ appended
+                base_url="https://custom.azure.com")
+
+    def test_create_kernel_returns_correct_tuple(self):
+        # Test that create_kernel returns the expected tuple
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "OpenAIConnection"
+        mock_connection.secrets = {"api_key": "test-key"}
+        mock_connection.organization = "test-org"
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
+            mock_kernel = MagicMock()
+            mock_kernel_class.return_value = mock_kernel
+            mock_chat = MagicMock()
+            mock_openai_chat.return_value = mock_chat
+
+            result = KernelFactory.create_kernel(mock_connection, "gpt-4")
+
+            # Verify the return value is a tuple with kernel and chat completion
+            assert isinstance(result, tuple)
+            assert len(result) == 2
+            assert result[0] == mock_kernel
+            assert result[1] == mock_chat

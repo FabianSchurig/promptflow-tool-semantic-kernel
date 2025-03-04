@@ -65,6 +65,8 @@ class KernelFactory:
         if connection_class == "AzureOpenAIConnection":
             base_url = connection.api_base
             api_key = connection.secrets.get("api_key")
+            if not base_url.endswith("/openai/"):
+                base_url = f"{base_url}/openai/"
         else:  # CustomConnection or other
             base_url = getattr(connection, "configs", {}).get("base_url")
             api_key = getattr(connection, "secrets", {}).get("api_key")
