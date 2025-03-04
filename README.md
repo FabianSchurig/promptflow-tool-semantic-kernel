@@ -29,13 +29,15 @@ Install the package from PyPI:
 pip install promptflow-tool-semantic-kernel
 ```
 
+You can find the package on [PyPI](https://pypi.org/project/promptflow-tool-semantic-kernel/).
+
 ## Usage
 
 ### In VSCode Promptflow
 
 Once installed, the Semantic Kernel tool will be available in your Promptflow tools collection:
 
-![New Tool in Sidebar](./docs/promptflow_tools.png)
+![New Tool in Sidebar](https://github.com/FabianSchurig/promptflow-tool-semantic-kernel/blob/e083a336c1c587b12c632f97365f01c0f0a9faa3/docs/promptflow_tools.png)
 
 1. Create a new promptflow in VSCode
 2. Add a custom LLM tool node
@@ -48,7 +50,7 @@ Once installed, the Semantic Kernel tool will be available in your Promptflow to
     - Customize your prompt as needed  
       
   
-![Semantic Kernel Chat](./docs/vscode.png)
+![Semantic Kernel Chat](https://github.com/FabianSchurig/promptflow-tool-semantic-kernel/blob/e083a336c1c587b12c632f97365f01c0f0a9faa3/docs/vscode.png)
 
 ## Running the Demo
 
