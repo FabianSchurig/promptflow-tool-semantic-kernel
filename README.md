@@ -162,6 +162,7 @@ Run the tests with pytest:
 
 ```bash
 poetry run pytest
+poetry run pytest --cov-report xml:coverage.xml --cov-report term --cov=promptflow_tool_semantic_kernel --cov-config=.coveragerc tests/
 ```
 
 ## License

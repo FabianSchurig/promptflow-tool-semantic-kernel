@@ -33,8 +33,6 @@ class ResponseProcessor:
     def yield_tool_messages(self):
         """Yield tool messages from the history observer."""
         for message in self.history_observer.get_new_messages():
-            message: ChatMessageContent = message
-            # if message.role == AuthorRole.TOOL:
             yield json.dumps(message.to_dict()) + "\n \n"
 
     async def process_streaming(self, content_generator):

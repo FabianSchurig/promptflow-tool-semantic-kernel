@@ -43,4 +43,4 @@ class LightsPlugin:
             if light["id"] == id:
                 light["is_on"] = is_on
                 return light
-        return None
+        return "Light state changed successfully"

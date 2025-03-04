@@ -47,4 +47,5 @@ def test_change_state_turn_off(lights_plugin):
 def test_change_state_invalid_id(lights_plugin):
     light_id = 99
     new_state = True
-    assert lights_plugin.change_state(light_id, new_state) == None
+    assert lights_plugin.change_state(
+        light_id, new_state) == "Light state changed successfully"
