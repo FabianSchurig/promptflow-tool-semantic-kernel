@@ -5,15 +5,12 @@ from typing import Dict, List, Any, Union
 from jinja2 import Template
 
 from promptflow.core import tool
-from promptflow.connections import CustomConnection
+from promptflow.connections import CustomConnection, AzureOpenAIConnection, OpenAIConnection
 from promptflow.contracts.types import PromptTemplate
 from promptflow._utils.logger_utils import LoggerFactory
 
 from semantic_kernel.connectors.ai.function_choice_behavior import FunctionChoiceBehavior
-from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import (
-    AzureChatPromptExecutionSettings, )
 from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.contents.chat_message_content import ChatMessageContent
 
 from promptflow_tool_semantic_kernel.tools.logger_factory import LoggerFactory
 from promptflow_tool_semantic_kernel.tools.kernel_factory import KernelFactory
@@ -28,7 +25,8 @@ import logging
 
 @tool(streaming_option_parameter="streaming")
 async def semantic_kernel_chat(
-        connection: CustomConnection,
+        connection: CustomConnection | AzureOpenAIConnection
+    | OpenAIConnection,
         deployment_name: str,
         chat_history: List[Dict[str, Any]],
         prompt: PromptTemplate,
@@ -71,7 +69,8 @@ async def semantic_kernel_chat(
             chat_history, rendered_prompt)
 
         # Configure execution settings
-        execution_settings = AzureChatPromptExecutionSettings()
+        # Get execution settings from the kernel factory
+        execution_settings = KernelFactory.get_execution_settings(connection)
         execution_settings.function_choice_behavior = FunctionChoiceBehavior.Auto(
         )
 

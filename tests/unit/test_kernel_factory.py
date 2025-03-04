@@ -4,6 +4,12 @@ from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion, OpenAIChatCompletion
 from promptflow_tool_semantic_kernel.tools.kernel_factory import KernelFactory
 
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.azure_chat_prompt_execution_settings import (
+    AzureChatPromptExecutionSettings, )
+from semantic_kernel.connectors.ai.open_ai.prompt_execution_settings.open_ai_prompt_execution_settings import (
+    OpenAIChatPromptExecutionSettings, )
+from semantic_kernel.connectors.ai.google.google_ai.google_ai_prompt_execution_settings import GoogleAIChatPromptExecutionSettings
+
 
 class TestKernelFactory:
 
@@ -138,7 +144,7 @@ class TestKernelFactory:
         # Test unknown connection
         unknown = MagicMock()
         unknown.__class__.__name__ = "UnknownConnection"
-        assert KernelFactory._is_azure_connection(unknown) == True
+        assert KernelFactory._is_azure_connection(unknown) == False
 
     def test_create_kernel_exception_handling(self):
         mock_connection = MagicMock()
@@ -226,3 +232,154 @@ class TestKernelFactory:
             assert len(result) == 2
             assert result[0] == mock_kernel
             assert result[1] == mock_chat
+
+    def test_is_google_ai_connection(self):
+        # Test CustomConnection with Google AI settings
+        custom_google = MagicMock()
+        custom_google.__class__.__name__ = "CustomConnection"
+        custom_google.configs = {"api_type": "google"}
+        assert KernelFactory._is_google_ai_connection(custom_google) == True
+
+        # Test CustomConnection with gemini model_id
+        custom_gemini = MagicMock()
+        custom_gemini.__class__.__name__ = "CustomConnection"
+        custom_gemini.configs = {"model_id": "gemini-2.0"}
+        assert KernelFactory._is_google_ai_connection(custom_gemini) == True
+
+        # Test CustomConnection with non-Google AI
+        custom_non_google = MagicMock()
+        custom_non_google.__class__.__name__ = "CustomConnection"
+        custom_non_google.configs = {"api_type": "openai"}
+        assert KernelFactory._is_google_ai_connection(
+            custom_non_google) == False
+
+        # Test unknown connection
+        unknown = MagicMock()
+        unknown.__class__.__name__ = "UnknownConnection"
+        assert KernelFactory._is_google_ai_connection(unknown) == False
+
+    def test_create_google_ai_chat_completion(self):
+        # Mock CustomConnection with Google AI settings
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "CustomConnection"
+        mock_connection.configs = {"model_id": "gemini-2.0"}
+        mock_connection.secrets = {"api_key": "google-key"}
+
+        with patch(
+                'promptflow_tool_semantic_kernel.tools.kernel_factory.GoogleAIChatCompletion',
+                autospec=True) as mock_google_chat:
+            mock_chat = MagicMock()
+            mock_google_chat.return_value = mock_chat
+
+            chat_completion = KernelFactory._create_google_ai_chat_completion(
+                mock_connection, "gemini-2.0")
+
+            assert chat_completion == mock_chat
+            mock_google_chat.assert_called_once_with(
+                gemini_model_id="gemini-2.0", api_key="google-key")
+
+    def test_get_execution_settings(self):
+        # Test AzureOpenAIConnection
+        azure_connection = MagicMock()
+        azure_connection.__class__.__name__ = "AzureOpenAIConnection"
+        assert isinstance(
+            KernelFactory.get_execution_settings(azure_connection),
+            AzureChatPromptExecutionSettings)
+
+        # Test OpenAIConnection
+        openai_connection = MagicMock()
+        openai_connection.__class__.__name__ = "OpenAIConnection"
+        assert isinstance(
+            KernelFactory.get_execution_settings(openai_connection),
+            OpenAIChatPromptExecutionSettings)
+
+        # Test CustomConnection with Google AI
+        custom_google = MagicMock()
+        custom_google.__class__.__name__ = "CustomConnection"
+        custom_google.configs = {"api_type": "google"}
+        assert isinstance(KernelFactory.get_execution_settings(custom_google),
+                          GoogleAIChatPromptExecutionSettings)
+
+        # Test CustomConnection with Azure
+        custom_azure = MagicMock()
+        custom_azure.__class__.__name__ = "CustomConnection"
+        custom_azure.configs = {"api_type": "azure"}
+        assert isinstance(KernelFactory.get_execution_settings(custom_azure),
+                          AzureChatPromptExecutionSettings)
+
+        # Test CustomConnection with OpenAI
+        custom_openai = MagicMock()
+        custom_openai.__class__.__name__ = "CustomConnection"
+        custom_openai.configs = {"api_type": "openai"}
+        assert isinstance(KernelFactory.get_execution_settings(custom_openai),
+                          OpenAIChatPromptExecutionSettings)
+
+    def test_create_kernel_with_invalid_connection(self):
+        # Test with an invalid connection type
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "InvalidConnection"
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.OpenAIChatCompletion', autospec=True) as mock_openai_chat:
+            mock_kernel = MagicMock()
+            mock_kernel_class.return_value = mock_kernel
+            mock_chat = MagicMock()
+            mock_openai_chat.return_value = mock_chat
+
+            with patch.object(mock_connection.secrets, 'get', return_value=None), \
+                    patch.object(mock_connection.configs, 'get', return_value=None):
+                kernel, chat_completion = KernelFactory.create_kernel(
+                    mock_connection, "gpt-4")
+
+                assert kernel == mock_kernel
+                assert chat_completion == mock_chat
+                mock_openai_chat.assert_called_once_with(api_key=None,
+                                                         ai_model_id="gpt-4",
+                                                         org_id=None)
+                mock_kernel.add_service.assert_called_once_with(mock_chat)
+
+    def test_create_kernel_with_google_ai_connection(self):
+        # Mock CustomConnection with Google AI settings
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "CustomConnection"
+        mock_connection.configs = {"api_type": "google"}
+        mock_connection.secrets = {"api_key": "google-key"}
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.GoogleAIChatCompletion', autospec=True) as mock_google_chat:
+            mock_kernel = MagicMock()
+            mock_kernel_class.return_value = mock_kernel
+            mock_chat = MagicMock()
+            mock_google_chat.return_value = mock_chat
+
+            kernel, chat_completion = KernelFactory.create_kernel(
+                mock_connection, "gemini-2.0")
+
+            assert kernel == mock_kernel
+            assert chat_completion == mock_chat
+            mock_google_chat.assert_called_once_with(
+                gemini_model_id="gemini-2.0", api_key="google-key")
+            mock_kernel.add_service.assert_called_once_with(mock_chat)
+
+    def test_create_kernel_with_custom_connection_google_default_model(self):
+        # Mock CustomConnection with Google AI settings
+        mock_connection = MagicMock()
+        mock_connection.__class__.__name__ = "CustomConnection"
+        mock_connection.configs = {"api_type": "google"}
+        mock_connection.secrets = {"api_key": "google-key"}
+
+        with patch('promptflow_tool_semantic_kernel.tools.kernel_factory.Kernel') as mock_kernel_class, \
+                patch('promptflow_tool_semantic_kernel.tools.kernel_factory.GoogleAIChatCompletion', autospec=True) as mock_google_chat:
+            mock_kernel = MagicMock()
+            mock_kernel_class.return_value = mock_kernel
+            mock_chat = MagicMock()
+            mock_google_chat.return_value = mock_chat
+
+            kernel, chat_completion = KernelFactory.create_kernel(
+                mock_connection, None)
+
+            assert kernel == mock_kernel
+            assert chat_completion == mock_chat
+            mock_google_chat.assert_called_once_with(
+                gemini_model_id="gemini-2.0-flash", api_key="google-key")
+            mock_kernel.add_service.assert_called_once_with(mock_chat)

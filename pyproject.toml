@@ -18,6 +18,7 @@ keyrings-alt = "^5.0.2"
 promptflow-tracing = "^1.17.2"
 fastapi = "^0.115.10"
 uvicorn = "^0.34.0"
+google-generativeai = "^0.8.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
