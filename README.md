@@ -66,6 +66,24 @@ export AZURE_OPENAI_DEPLOYMENT_NAME=your_deployment_name
 python -m scripts.main
 ```
 
+## Using different connections
+
+### Google Gemini
+
+Add a CustomConnection via promptflow in vscode as follows, important is that `api_type: "google"`:
+
+```json
+$schema: https://azuremlschemas.azureedge.net/promptflow/latest/CustomConnection.schema.json
+name: "google_gemini"
+type: custom
+configs:
+  api_type: "google"
+  model_id: "gemini-2.0-flash"
+secrets:
+  # Use'<no-change>' to keep original value or '<user-input>' to update it when the application runs.
+  api_key: "<user-input>"
+```
+
 ## Adding Custom Plugins
 
 Semantic Kernel allows you to easily extend functionality through plugins. [Learn more about creating a native plugin](https://learn.microsoft.com/en-us/semantic-kernel/get-started/quick-start-guide?pivots=programming-language-python#create-a-native-plugin).

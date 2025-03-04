@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "promptflow-tool-semantic-kernel"
-version = "0.2.1"
+version = "0.2.2"
 description = ""
 authors = ["Fabian Schurig <fabian.a.schurig@gmail.com>"]
 readme = "README.md"
