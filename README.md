@@ -72,7 +72,7 @@ python -m scripts.main
 
 Add a CustomConnection via promptflow in vscode as follows, important is that `api_type: "google"`:
 
-```json
+```yaml
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/CustomConnection.schema.json
 name: "google_gemini"
 type: custom
