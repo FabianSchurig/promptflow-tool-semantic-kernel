@@ -96,3 +96,39 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Set repository name to lowercase
+        run: echo "REPO_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      
+      - name: Build and test
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          target: test
+          file: Dockerfile
+          build-args: |
+            
+          tags: |
+            ghcr.io/${{ env.REPO_NAME }}/test${{ matrix.python-version }}:latest
+            ghcr.io/${{ env.REPO_NAME }}/test${{ matrix.python-version }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+            PYTHON_VERSION=${{ matrix.python-version }}
+            REPO_URL=${{ secrets.PYPI_REPOSITORY_URL }}
+            REPO_USERNAME=${{ secrets.PYPI_USERNAME }}
+          secrets: |
+            pypi_api_token=${{ secrets.PYPI_API_TOKEN }}
+            repo_password=${{ secrets.PYPI_PASSWORD }}
+            openai_api_key=${{ secrets.OPENAI_API_KEY }}
+            openai_api_base=${{ secrets.OPENAI_API_BASE }}

@@ -1,4 +1,5 @@
-FROM python:3.12-slim AS builder
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim AS builder
 
 # Install Poetry via pip
 RUN pip install poetry

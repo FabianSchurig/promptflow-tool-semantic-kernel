@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "promptflow-tool-semantic-kernel"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
 authors = ["Fabian Schurig <fabian.a.schurig@gmail.com>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ include = ["**/*.yaml", "**/*.yml"]
 license = "AGPL-3.0-only"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = "^3.10,<3.13"
 promptflow = "^1.17.2"
 semantic-kernel = "^1.22.0"
 keyrings-alt = "^5.0.2"
